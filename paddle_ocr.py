@@ -3,9 +3,8 @@ import cv2
 
 
 language = "ch"  # Chinese & English
-# anguage = "en"  English
+# language = "en"  English\
 pd_ocr = PaddleOCR(use_angle_cls=True, use_gpu=True, lang=language)
-
 
 # The model file will be downloaded automatically when executed for the first time
 
@@ -24,8 +23,9 @@ def read_resized_cv2_image(image_file, resize_rate=None):
 def ocr(image_file, cv_image=None, resize_rate=None):
     if cv_image is None:
         cv_image = read_resized_cv2_image(image_file, resize_rate)
-    cv_image = cv_image[75:1920, 0:1080]
-    # Paddle一般是一个文本块作为一个检测结果"""
+    cv_image = cv2.resize(cv_image, dsize=(1080, 1920))
+    # cv_image = cv_image[75:1920, 0:1080]
+    # Paddle一般是一个文本块作为一个检测结果
     paddle_result = pd_ocr.ocr(cv_image, cls=True)
     # print(paddle_result)
     word2_loc = {}
@@ -40,14 +40,15 @@ def ocr(image_file, cv_image=None, resize_rate=None):
         y_min = int(min(lt[1], rt[1], rb[1], lb[1]))
         y_max = int(max(lt[1], rt[1], rb[1], lb[1]))
         word = region[1][0]
-        word2_loc[word] = [x_min, y_min, x_max - x_min, y_max - y_min]
+        if y_min >= 75:
+            word2_loc[word] = [x_min, y_min, x_max - x_min, y_max - y_min]
 
     word2_loc = sorted(word2_loc.items(), key=lambda x: x[1][1])
 
     for item in word2_loc:
         text.append(item[0])
         boxes.append(item[1])
-
+        print("Text is {}, Location is {}".format(item[0], item[1]))
     return text, boxes
 
 
