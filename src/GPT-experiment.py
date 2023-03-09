@@ -38,7 +38,7 @@ def judge_question(word_list, tip_word):
 
 
 def GPT_3(question):
-    openai.api_key = "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"
+    openai.api_key = "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"
 
     response = openai.Completion.create(
         model="text-davinci-003",
